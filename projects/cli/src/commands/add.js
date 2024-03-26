@@ -83,7 +83,7 @@ let addNewLayout = () => async ([name]) => {
     moduleSegments
   })
 
-  let relativeFilepath = `src/${generatedFile.filepath}`
+  let relativeFilepath = `src/elm/${generatedFile.filepath}`
 
   return {
     message: [
@@ -176,7 +176,7 @@ let addNewPage = (kind) => async ([originalUrl]) => {
       filepath
     })
 
-    let relativeFilepath = `src/${generatedFile.filepath}`
+    let relativeFilepath = `src/elm/${generatedFile.filepath}`
 
     let newFile = {
       kind: 'file',

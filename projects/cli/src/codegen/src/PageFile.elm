@@ -543,6 +543,9 @@ toRouteFromStringBranch page =
                                 piece
                                     |> Extras.String.fromPascalCaseToCamelCase
 
+                            else if piece == "Dash" then
+                                "\"-\""
+
                             else
                                 piece
                                     |> Extras.String.fromPascalCaseToKebabCase

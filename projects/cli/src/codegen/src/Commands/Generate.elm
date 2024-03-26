@@ -18,14 +18,15 @@ run json =
     case Json.Decode.decodeValue decoder json of
         Ok data ->
             List.concat
-                [ [ mainElmModule data
-                  , mainPagesModelModule data
+                [ [ --     mainElmModule data ,
+                    mainPagesModelModule data
                   , mainPagesMsgModule data
                   , mainLayoutsModelModule data
                   , mainLayoutsMsgModule data
                   , routePathElmModule data
-                  , routeQueryElmModule data
-                  , routeElmModule data
+
+                  --   , routeQueryElmModule data
+                  --   , routeElmModule data
                   , layoutsElmModule data
                   ]
                 , if data.options.useHashRouting then
@@ -2912,6 +2913,9 @@ toRoutePathToStringBranch page =
                         (\piece ->
                             if piece == "ALL_" then
                                 CodeGen.Expression.value "String.join \"/\" params.all_"
+
+                            else if piece == "Dash" then
+                                CodeGen.Expression.string "-"
 
                             else if piece == "NotFound_" then
                                 CodeGen.Expression.string "404"

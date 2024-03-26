@@ -80,7 +80,11 @@ Renders the following:
 -}
 toString : Module -> String
 toString (Module options) =
-    "module {{name}} exposing ({{exposing}}){{imports}}{{declarations}}\n"
+    let
+        license = "SPDX-License-Identifier: Apache-2.0"
+    in
+    "{{license}}\n\n\nmodule {{name}} exposing ({{exposing}}){{imports}}{{declarations}}\n"
+        |> String.replace "{{license}}" (String.join "\n" ["{--",license,"--}"])
         |> String.replace "{{name}}" (String.join "." options.name)
         |> String.replace "{{exposing}}" (String.join ", " options.exposing_)
         |> String.replace "{{imports}}"

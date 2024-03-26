@@ -11,8 +11,8 @@ const { validate } = require('./validate/index.js')
 const { default: ElmErrorJson } = require('./vite-plugins/elm/elm-error-json.js')
 
 
-let srcPagesFolderFilepath = path.join(process.cwd(), 'src', 'Pages')
-let srcLayoutsFolderFilepath = path.join(process.cwd(), 'src', 'Layouts')
+let srcPagesFolderFilepath = path.join(process.cwd(), 'src', 'elm', 'Pages')
+let srcLayoutsFolderFilepath = path.join(process.cwd(), 'src', 'elm', 'Layouts')
 
 process.on('uncaughtException', function (err) {
   if (err.code === 'EPERM') {
@@ -225,7 +225,7 @@ let generateElmFiles = async (config, server = undefined) => {
 
     let pages =
       await Promise.all(pageFilepaths.map(async filepath => {
-        let contents = await Files.readFromUserFolder(`src/Pages/${filepath}.elm`)
+        let contents = await Files.readFromUserFolder(`src/elm/Pages/${filepath}.elm`)
 
         return {
           filepath: filepath.split('/'),
@@ -235,7 +235,7 @@ let generateElmFiles = async (config, server = undefined) => {
 
     let layouts =
       await Promise.all(layoutFilepaths.map(async filepath => {
-        let contents = await Files.readFromUserFolder(`src/Layouts/${filepath}.elm`)
+        let contents = await Files.readFromUserFolder(`src/elm/Layouts/${filepath}.elm`)
 
         return {
           filepath: filepath.split('/'),
@@ -243,16 +243,16 @@ let generateElmFiles = async (config, server = undefined) => {
         }
       }))
 
-    let view = await Files.readFromUserFolder('src/View.elm').catch(_ => null)
+    let view = await Files.readFromUserFolder('src/elm/View.elm').catch(_ => null)
 
     let errors = await validate({
       pages,
       layouts,
-      auth: await Files.readFromUserFolder('src/Auth.elm').catch(_ => null),
-      shared: await Files.readFromUserFolder('src/Shared.elm').catch(_ => null),
-      sharedModel: await Files.readFromUserFolder('src/Shared/Model.elm').catch(_ => null),
-      sharedMsg: await Files.readFromUserFolder('src/Shared/Msg.elm').catch(_ => null),
-      effect: await Files.readFromUserFolder('src/Effect.elm').catch(_ => null),
+      auth: await Files.readFromUserFolder('src/elm/Auth.elm').catch(_ => null),
+      shared: await Files.readFromUserFolder('src/elm/Shared.elm').catch(_ => null),
+      sharedModel: await Files.readFromUserFolder('src/elm/Shared/Model.elm').catch(_ => null),
+      sharedMsg: await Files.readFromUserFolder('src/elm/Shared/Msg.elm').catch(_ => null),
+      effect: await Files.readFromUserFolder('src/elm/Effect.elm').catch(_ => null),
       view
     })
 
@@ -281,7 +281,7 @@ let generateElmFiles = async (config, server = undefined) => {
       await Files.create(
         newFiles.map(generatedFile => ({
           kind: 'file',
-          name: `.elm-land/src/${generatedFile.filepath}`,
+          name: `src/elm/${generatedFile.filepath}`,
           content: generatedFile.contents
         }))
       )
@@ -416,7 +416,8 @@ const handleElmLandFiles = async () => {
 const generate = async (config) => {
   // Create default files in `.elm-land/src` if they aren't already
   // defined by the user in the `src` folder
-  await handleElmLandFiles()
+  console.log("skipping elm-land static file generation")
+  // await handleElmLandFiles()
 
   // Generate Elm files
   await generateElmFiles(config)
