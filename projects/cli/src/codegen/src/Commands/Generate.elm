@@ -18,15 +18,14 @@ run json =
     case Json.Decode.decodeValue decoder json of
         Ok data ->
             List.concat
-                [ [ --     mainElmModule data ,
-                    mainPagesModelModule data
+                [ [ mainElmModule data
+                  , mainPagesModelModule data
                   , mainPagesMsgModule data
                   , mainLayoutsModelModule data
                   , mainLayoutsMsgModule data
                   , routePathElmModule data
-
-                  --   , routeQueryElmModule data
-                  --   , routeElmModule data
+                  , routeQueryElmModule data
+                  , routeElmModule data
                   , layoutsElmModule data
                   ]
                 , if data.options.useHashRouting then
@@ -122,11 +121,14 @@ mainElmModule data =
                   , CodeGen.Import.new [ "Auth", "Action" ]
                   , CodeGen.Import.new [ "Browser" ]
                   , CodeGen.Import.new [ "Browser", "Navigation" ]
+                  , CodeGen.Import.new [ "Dict" ]
                   , CodeGen.Import.new [ "Effect" ]
                         |> CodeGen.Import.withExposing [ "Effect" ]
                   , CodeGen.Import.new [ "Html" ]
                         |> CodeGen.Import.withExposing [ "Html" ]
+                  , CodeGen.Import.new [ "Interop" ]
                   , CodeGen.Import.new [ "Json", "Decode" ]
+                  , CodeGen.Import.new [ "Json", "Encode" ]
                   , CodeGen.Import.new [ "Layout" ]
                   , CodeGen.Import.new [ "Layouts" ]
                   ]
@@ -138,6 +140,7 @@ mainElmModule data =
                   , CodeGen.Import.new [ "Main", "Layouts", "Msg" ]
                   , CodeGen.Import.new [ "Main", "Pages", "Model" ]
                   , CodeGen.Import.new [ "Main", "Pages", "Msg" ]
+                  , CodeGen.Import.new [ "Maybe", "Extra" ]
                   , CodeGen.Import.new [ "Page" ]
                   ]
                 , data.pages
@@ -1385,7 +1388,22 @@ runWhenAuthenticatedWithLayoutDeclaration =
                                     wrapInPageLayout <|
                                         CodeGen.Expression.multilineTuple
                                             [ CodeGen.Expression.value "Main.Pages.Model.Redirecting_"
-                                            , CodeGen.Expression.value "toCmd (Effect.replaceRoute options)"
+                                            , CodeGen.Expression.multilineFunction
+                                                { name = "Cmd.batch"
+                                                , arguments =
+                                                    [ CodeGen.Expression.multilineList
+                                                        [ CodeGen.Expression.value "toCmd (Effect.replaceRoute options)"
+                                                        , CodeGen.Expression.multilineFunction
+                                                            { name = "Maybe.Extra.unwrap"
+                                                            , arguments =
+                                                                [ CodeGen.Expression.value "Cmd.none"
+                                                                , CodeGen.Expression.value "(\\from -> Interop.setRedirect <| Json.Encode.string from)"
+                                                                , CodeGen.Expression.value "(Dict.get \"from\" options.query)"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    ]
+                                                }
                                             ]
                               }
                             , { name = "Auth.Action.PushRoute"
@@ -1394,7 +1412,22 @@ runWhenAuthenticatedWithLayoutDeclaration =
                                     wrapInPageLayout <|
                                         CodeGen.Expression.multilineTuple
                                             [ CodeGen.Expression.value "Main.Pages.Model.Redirecting_"
-                                            , CodeGen.Expression.value "toCmd (Effect.pushRoute options)"
+                                            , CodeGen.Expression.multilineFunction
+                                                { name = "Cmd.batch"
+                                                , arguments =
+                                                    [ CodeGen.Expression.multilineList
+                                                        [ CodeGen.Expression.value "toCmd (Effect.pushRoute options)"
+                                                        , CodeGen.Expression.multilineFunction
+                                                            { name = "Maybe.Extra.unwrap"
+                                                            , arguments =
+                                                                [ CodeGen.Expression.value "Cmd.none"
+                                                                , CodeGen.Expression.value "(\\from -> Interop.setRedirect <| Json.Encode.string from)"
+                                                                , CodeGen.Expression.value "(Dict.get \"from\" options.query)"
+                                                                ]
+                                                            }
+                                                        ]
+                                                    ]
+                                                }
                                             ]
                               }
                             , { name = "Auth.Action.LoadExternalUrl"
@@ -2918,7 +2951,7 @@ toRoutePathToStringBranch page =
                                 CodeGen.Expression.string "-"
 
                             else if piece == "NotFound_" then
-                                CodeGen.Expression.string "404"
+                                CodeGen.Expression.string "not-found"
 
                             else if String.endsWith "_" piece then
                                 CodeGen.Expression.value
