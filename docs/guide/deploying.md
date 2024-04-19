@@ -16,7 +16,7 @@ elm-land build
 
 ```txt
 
-🌈  Elm Land (v0.19.5) build was successful.
+🌈  Elm Land (v0.20.1) build was successful.
     ⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺⎺
 ```
 

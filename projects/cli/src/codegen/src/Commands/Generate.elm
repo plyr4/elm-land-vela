@@ -355,15 +355,20 @@ mainElmModule data =
                             , { name = "UrlRequested"
                               , arguments = [ CodeGen.Argument.new "(Browser.External url)" ]
                               , expression =
-                                    CodeGen.Expression.multilineTuple
-                                        [ CodeGen.Expression.value "model"
-                                        , CodeGen.Expression.function
-                                            { name = "Browser.Navigation.load"
-                                            , arguments =
-                                                [ CodeGen.Expression.value "url"
+                                    CodeGen.Expression.ifElse
+                                        { condition = CodeGen.Expression.value "String.isEmpty (String.trim url)"
+                                        , ifBranch = CodeGen.Expression.value "( model, Cmd.none )"
+                                        , elseBranch =
+                                            CodeGen.Expression.multilineTuple
+                                                [ CodeGen.Expression.value "model"
+                                                , CodeGen.Expression.function
+                                                    { name = "Browser.Navigation.load"
+                                                    , arguments =
+                                                        [ CodeGen.Expression.value "url"
+                                                        ]
+                                                    }
                                                 ]
-                                            }
-                                        ]
+                                        }
                               }
                             , { name = "UrlChanged"
                               , arguments = [ CodeGen.Argument.new "url" ]
@@ -1254,7 +1259,7 @@ hasActionTypeChangedDeclaration =
                       , arguments = []
                       , expression = CodeGen.Expression.value "False"
                       }
-                    , { name = "( Auth.Action.ShowLoadingPage _, Auth.Action.ShowLoadingPage _ )"
+                    , { name = "( Auth.Action.LoadCustomPage, Auth.Action.LoadCustomPage )"
                       , arguments = []
                       , expression = CodeGen.Expression.value "False"
                       }
@@ -1372,8 +1377,8 @@ runWhenAuthenticatedWithLayoutDeclaration =
                               , arguments = [ CodeGen.Argument.new "user" ]
                               , expression = CodeGen.Expression.value "toRecord user"
                               }
-                            , { name = "Auth.Action.ShowLoadingPage"
-                              , arguments = [ CodeGen.Argument.new "loadingView" ]
+                            , { name = "Auth.Action.LoadCustomPage"
+                              , arguments = []
                               , expression =
                                     wrapInPageLayout
                                         (CodeGen.Expression.multilineTuple
@@ -1599,7 +1604,7 @@ toViewPageCaseExpression pages =
         conditionallyWrapInAuthView page expression =
             if PageFile.isAuthProtectedPage page then
                 CodeGen.Expression.multilineFunction
-                    { name = "Auth.Action.view"
+                    { name = "Auth.Action.view (View.map never (Auth.viewCustomPage model.shared (Route.fromUrl () model.url)))"
                     , arguments =
                         [ CodeGen.Expression.multilineLambda
                             { arguments = [ CodeGen.Argument.new "user" ]
@@ -1634,7 +1639,7 @@ toViewPageCaseExpression pages =
                     , arguments = []
                     , expression =
                         CodeGen.Expression.pipeline
-                            [ CodeGen.Expression.value "Auth.viewLoadingPage model.shared (Route.fromUrl () model.url)"
+                            [ CodeGen.Expression.value "Auth.viewCustomPage model.shared (Route.fromUrl () model.url)"
                             , CodeGen.Expression.value "View.map never"
                             ]
                     }
