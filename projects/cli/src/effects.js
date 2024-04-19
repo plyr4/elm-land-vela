@@ -13,14 +13,9 @@ import url from 'url'
 
 const isWindows = process.platform === "win32"
 
-<<<<<<< HEAD
-let srcPagesFolderFilepath = path.join(process.cwd(), 'src', 'elm', 'Pages')
-let srcLayoutsFolderFilepath = path.join(process.cwd(), 'src', 'elm', 'Layouts')
-=======
 let __dirname = path.dirname(url.fileURLToPath(import.meta.url))
-let srcPagesFolderFilepath = join(process.cwd(), 'src', 'Pages')
-let srcLayoutsFolderFilepath = join(process.cwd(), 'src', 'Layouts')
->>>>>>> 67489e30254db75219334a8fb5e4489dc4765810
+let srcPagesFolderFilepath = join(process.cwd(), 'src', 'elm', 'Pages')
+let srcLayoutsFolderFilepath = join(process.cwd(), 'src', 'elm', 'Layouts')
 
 process.on('uncaughtException', function (err) {
   if (err.code === 'EPERM') {
